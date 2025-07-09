@@ -1,47 +1,59 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Генератор паролей</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f3f3f3;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 100px;
+      background: #f2f2f2;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
     }
     #password {
       font-size: 24px;
-      padding: 10px;
-      background: #fff;
-      border: 1px solid #ccc;
-      margin: 20px;
-      width: 300px;
-      text-align: center;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #0077cc;
     }
     button {
+      background-color: #0077cc;
+      color: white;
       padding: 10px 20px;
       font-size: 16px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #005fa3;
     }
   </style>
 </head>
 <body>
-  <h1>🔐 Генератор надёжного пароля</h1>
-  <div id="password">Нажмите кнопку ниже</div>
+  <h1>🛡️ Генератор случайных паролей</h1>
+  <div id="password">Нажмите "Сгенерировать"</div>
   <button onclick="generatePassword()">Сгенерировать пароль</button>
+  <button onclick="copyPassword()">Скопировать</button>
 
   <script>
-    function generatePassword(length = 12) {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+    function generatePassword() {
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
       let password = "";
-      for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
-        password += chars[randomIndex];
+      for (let i = 0; i < 12; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
       }
-      document.getElementById("password").textContent = password;
+      document.getElementById("password").innerText = password;
+    }
+
+    function copyPassword() {
+      const password = document.getElementById("password").innerText;
+      navigator.clipboard.writeText(password);
+      alert("Пароль скопирован!");
     }
   </script>
 </body>
