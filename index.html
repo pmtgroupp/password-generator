@@ -7,12 +7,21 @@
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
+      color: #333;
       text-align: center;
       padding: 40px;
+      transition: background 0.3s, color 0.3s;
     }
+
+    body.dark {
+      background: #1c1c1c;
+      color: #eee;
+    }
+
     h1 {
-      color: #333;
+      margin-bottom: 20px;
     }
+
     #password {
       font-size: 24px;
       font-weight: bold;
@@ -20,21 +29,30 @@
       color: #0077cc;
       word-wrap: break-word;
     }
+
+    body.dark #password {
+      color: #4fc3f7;
+    }
+
     .controls {
       margin-bottom: 20px;
     }
+
     label {
       margin: 0 10px;
       font-size: 16px;
     }
+
     input[type="number"] {
       width: 60px;
       padding: 5px;
       font-size: 16px;
     }
+
     input[type="checkbox"] {
       transform: scale(1.2);
     }
+
     button {
       background-color: #0077cc;
       color: white;
@@ -44,13 +62,42 @@
       border-radius: 5px;
       cursor: pointer;
       margin: 5px;
+      transition: background 0.2s;
     }
+
     button:hover {
       background-color: #005fa3;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 20px;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
     }
   </style>
 </head>
 <body>
+  <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
   <h1>🔐 Генератор паролей</h1>
 
   <div class="controls">
@@ -105,7 +152,13 @@
       navigator.clipboard.writeText(password);
       alert("Пароль скопирован!");
     }
+
+    function toggleTheme() {
+      const body = document.body;
+      body.classList.toggle('dark');
+      const btn = document.querySelector('.theme-toggle');
+      btn.innerText = body.classList.contains('dark') ? '🌞' : '🌙';
+    }
   </script>
 </body>
 </html>
-
