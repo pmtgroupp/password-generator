@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f2f2f2;
+      background: #f4f4f4;
       text-align: center;
       padding: 40px;
     }
@@ -18,6 +18,22 @@
       font-weight: bold;
       margin: 20px 0;
       color: #0077cc;
+      word-wrap: break-word;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    label {
+      margin: 0 10px;
+      font-size: 16px;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      font-size: 16px;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.2);
     }
     button {
       background-color: #0077cc;
@@ -35,16 +51,46 @@
   </style>
 </head>
 <body>
-  <h1>🛡️ Генератор случайных паролей</h1>
+  <h1>🔐 Генератор паролей</h1>
+
+  <div class="controls">
+    <label>Длина:
+      <input type="number" id="length" min="4" max="32" value="12">
+    </label>
+    <label>
+      <input type="checkbox" id="letters" checked> Буквы
+    </label>
+    <label>
+      <input type="checkbox" id="numbers" checked> Цифры
+    </label>
+    <label>
+      <input type="checkbox" id="symbols" checked> Символы
+    </label>
+  </div>
+
   <div id="password">Нажмите "Сгенерировать"</div>
   <button onclick="generatePassword()">Сгенерировать пароль</button>
   <button onclick="copyPassword()">Скопировать</button>
 
   <script>
     function generatePassword() {
-      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+      const length = parseInt(document.getElementById("length").value);
+      const useLetters = document.getElementById("letters").checked;
+      const useNumbers = document.getElementById("numbers").checked;
+      const useSymbols = document.getElementById("symbols").checked;
+
+      let chars = "";
+      if (useLetters) chars += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      if (useNumbers) chars += "0123456789";
+      if (useSymbols) chars += "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+      if (chars === "") {
+        alert("Выберите хотя бы один тип символов!");
+        return;
+      }
+
       let password = "";
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < length; i++) {
         password += chars.charAt(Math.floor(Math.random() * chars.length));
       }
       document.getElementById("password").innerText = password;
@@ -52,9 +98,14 @@
 
     function copyPassword() {
       const password = document.getElementById("password").innerText;
+      if (!password || password === "Нажмите \"Сгенерировать\"") {
+        alert("Сначала сгенерируйте пароль!");
+        return;
+      }
       navigator.clipboard.writeText(password);
       alert("Пароль скопирован!");
     }
   </script>
 </body>
 </html>
+
