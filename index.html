@@ -4,81 +4,349 @@
   <meta charset="UTF-8" />
   <title>Password Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      color: #333;
-      text-align: center;
-      padding: 40px;
+      background: linear-gradient(135deg, #e3eafc 0%, #f6f8ff 100%);
+      min-height: 100vh;
       margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      color: #222;
       transition: background 0.3s, color 0.3s;
     }
-    body.dark { background: #1c1c1c; color: #eee; }
-    h1 { margin-bottom: 20px; font-size: 28px; }
-    #password { font-size: 22px; font-weight: bold; margin: 20px 0; color: #0077cc; word-wrap: break-word; }
-    #strength { font-size: 18px; margin-bottom: 15px; font-weight: bold; }
-    .weak { color: red; }
-    .medium { color: orange; }
-    .strong { color: green; }
-    .controls { margin-bottom: 20px; }
-    label { margin: 0 10px; font-size: 16px; }
-    input[type="number"], input[type="text"] { padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
-    input[type="number"] { width: 60px; }
-    input[type="checkbox"] { transform: scale(1.2); }
-    button { background-color: #0077cc; color: white; padding: 10px 16px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; transition: background 0.2s; }
-    button:hover { background-color: #005fa3; }
-    .theme-toggle, .lang-toggle { position: absolute; top: 10px; background: none; border: none; font-size: 20px; cursor: pointer; }
-    .theme-toggle { right: 20px; }
-    .lang-toggle { left: 20px; }
-    .custom-input { margin-top: 20px; }
-    #userStrength { margin-top: 8px; font-weight: bold; }
+    body.dark {
+      background: linear-gradient(135deg, #232935 0%, #1a1f28 100%);
+      color: #f7f7f7;
+    }
+    body.dark input,
+    body.dark #customPassword {
+      background: #232935;
+      color: #f7f7f7;
+      border-color: #3e7bfa;
+    }
+    body.dark .bar-bg {
+      background: #333849;
+    }
+    header {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .header-row {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+      min-height: 48px;
+    }
+    .lang-toggle, .theme-toggle {
+      background: #f6f8ff;
+      border: none;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      font-size: 19px;
+      box-shadow: 0 2px 10px #e3eafc;
+      cursor: pointer;
+      transition: background .2s;
+      z-index: 10;
+      color: #222;
+      margin: 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lang-toggle { margin-left: 0; }
+    .theme-toggle { margin-right: 0; }
+    body.dark .theme-toggle, body.dark .lang-toggle {
+      background: #232935;
+      color: #f7f7f7;
+      box-shadow: 0 2px 10px #232935;
+    }
+    h1 {
+      margin: 44px 0 28px 0;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-align: center;
+      width: 100%;
+    }
+    .card {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 10px 40px 10px;
+      position: relative;
+      background: none;
+      box-shadow: none;
+      border-radius: 0;
+      border: none;
+      padding: 0 0 44px 0;
+    }
+    .main-grid {
+      display: flex;
+      gap: 42px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .controls-col {
+      flex: 1.2;
+      min-width: 260px;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px 18px;
+      align-items: center;
+    }
+    label {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    input[type="number"],
+    input[type="text"] {
+      padding: 7px 11px;
+      font-size: 15px;
+      border: 1.5px solid #d3dbef;
+      border-radius: 6px;
+      background: #fff;
+      transition: border .2s, background .3s, color .3s;
+    }
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+      border: 1.5px solid #a0b9fc;
+      outline: none;
+    }
+    input[type="checkbox"] {
+      accent-color: #3e7bfa;
+      width: 18px;
+      height: 18px;
+    }
+    .btns {
+      display: flex;
+      gap: 13px;
+      flex-wrap: wrap;
+    }
+    button:not(.theme-toggle):not(.lang-toggle):not(.copy-btn) {
+      background: linear-gradient(90deg,#3e7bfa 0%,#7bb4fa 100%);
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 7px;
+      padding: 10px 20px;
+      color: #fff;
+      box-shadow: 0 1px 3px #e3eafc;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    button:not(.theme-toggle):not(.lang-toggle):not(.copy-btn):hover {
+      background: linear-gradient(90deg,#224a8d 0%,#3e7bfa 100%);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .password-col {
+      flex: 2.2;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+    #password-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      min-height: 48px;
+      border: none;
+      background: none;
+      border-radius: 0;
+      padding: 0;
+    }
+    #password {
+      font-size: 25px;
+      font-weight: 600;
+      color: #3e7bfa;
+      word-break: break-all;
+      text-align: left;
+      flex: 1;
+    }
+    body.dark #password {
+      color: #7bb4fa;
+    }
+    .copy-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #3e7bfa;
+      cursor: pointer;
+      margin-left: 16px;
+      padding: 4px;
+      transition: color .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .copy-btn:hover { color: #224a8d; }
+    body.dark .copy-btn { color: #7bb4fa; }
+    body.dark .copy-btn:hover { color: #fff; }
+    .material-icons {
+      font-size: 28px;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .bar-bg {
+      background: #e3eafc;
+      border-radius: 7px;
+      height: 10px;
+      width: 100%;
+      margin-bottom: 6px;
+      overflow: hidden;
+      box-shadow: none;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 7px;
+      transition: width .4s, background .3s;
+      width: 0%;
+      background: #f00;
+    }
+    .strong .bar-fill { background: #44d47e; }
+    .medium .bar-fill { background: #ffb740; }
+    .weak .bar-fill { background: #f43a3a; }
+    #strength, #userStrength {
+      font-size: 15px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      text-align: left;
+    }
+    .custom-input {
+      padding: 0;
+      margin-top: 10px;
+      margin-bottom: 0;
+      box-sizing: border-box;
+      text-align: left;
+      border: none;
+      background: none;
+    }
+    #customPrompt {
+      margin-bottom: 7px;
+    }
+    #customPassword {
+      width: 80%;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 991px) {
+      .main-grid { flex-direction: column; gap: 20px; }
+      .card { padding: 24px 0 24px 0; }
+      .controls-col, .password-col { min-width: 0; max-width: 100%; }
+      #password { font-size: 20px; }
+      h1 { font-size: 24px; }
+      .header-row { min-height: 38px; }
+    }
     @media (max-width: 600px) {
-      body { padding: 20px; }
-      h1 { font-size: 22px; }
-      button { font-size: 15px; padding: 10px; }
-      label { display: block; margin: 10px 0; }
+      body { align-items: flex-start; }
+      header, .card { max-width: 100vw; }
+      .card { 
+        padding: 16px 3vw 24px 3vw; 
+        background: #fff;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+        border-radius: 22px;
+        margin: 0 0 40px 0;
+      }
+      .main-grid { flex-direction: column; gap: 10px; }
+      h1 { font-size: 20px; margin: 24px 0 18px 0; }
+      #password { font-size: 17px; }
+      .controls, .custom-input {
+        background: #f6f8ff;
+        border-radius: 14px;
+        box-shadow: 0 1px 6px #e3eafc;
+        border: none;
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+      #password-container {
+        background: #f6f8ff;
+        border-radius: 10px;
+        border: 1.5px solid #e3eafc;
+        min-height: 48px;
+        padding: 14px 18px;
+      }
+      .bar-bg {
+        box-shadow: 0 1px 6px #e3eafc;
+      }
+      #customPassword { width: 100%; }
+      .header-row {
+        min-height: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-  <button class="lang-toggle" onclick="toggleLanguage()">🇷🇺</button>
-
-  <h1 id="title">🔐 Генератор паролей</h1>
-
-  <div class="controls">
-    <label><span data-text="length">Длина</span>:
-      <input type="number" id="length" min="4" max="32" value="12">
-    </label>
-    <label>
-      <input type="checkbox" id="letters" checked>
-      <span data-text="letters">Буквы</span>
-    </label>
-    <label>
-      <input type="checkbox" id="numbers" checked>
-      <span data-text="numbers">Цифры</span>
-    </label>
-    <label>
-      <input type="checkbox" id="symbols" checked>
-      <span data-text="symbols">Символы</span>
-    </label>
+  <header>
+    <div class="header-row">
+      <button class="lang-toggle" onclick="toggleLanguage()">🇷🇺</button>
+      <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </div>
+    <h1 id="title">🔐 Генератор паролей</h1>
+  </header>
+  <div class="card">
+    <div class="main-grid">
+      <div class="controls-col">
+        <div class="controls">
+          <label><span data-text="length">Длина</span>:
+            <input type="number" id="length" min="4" max="32" value="12">
+          </label>
+          <label>
+            <input type="checkbox" id="letters" checked>
+            <span data-text="letters">Буквы</span>
+          </label>
+          <label>
+            <input type="checkbox" id="numbers" checked>
+            <span data-text="numbers">Цифры</span>
+          </label>
+          <label>
+            <input type="checkbox" id="symbols" checked>
+            <span data-text="symbols">Символы</span>
+          </label>
+        </div>
+        <div class="btns">
+          <button onclick="generatePassword()" data-text="generate">Сгенерировать пароль</button>
+          <button onclick="generatePhrase()" data-text="phrase">Сгенерировать фразу</button>
+        </div>
+      </div>
+      <div class="password-col">
+        <div id="password-container">
+          <span id="password">Нажмите "Сгенерировать"</span>
+          <button class="copy-btn" onclick="copyPassword()" title="Скопировать">
+            <span class="material-icons">content_copy</span>
+          </button>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" id="strengthBar"></div></div>
+        <div id="strength"></div>
+        <div class="custom-input">
+          <p id="customPrompt">🔎 Проверьте свой пароль:</p>
+          <input type="text" id="customPassword" placeholder="Введите свой пароль">
+          <button onclick="onUserCheck()" id="userCheckBtn">Проверить пароль</button>
+          <div class="bar-bg" style="margin-bottom:6px;"><div class="bar-fill" id="userStrengthBar"></div></div>
+          <div id="userStrength"></div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <div id="password">Нажмите "Сгенерировать"</div>
-  <div id="strength"></div>
-
-  <button onclick="generatePassword()" data-text="generate">Сгенерировать пароль</button>
-  <button onclick="generatePhrase()" data-text="phrase">Сгенерировать фразу</button>
-  <button onclick="copyPassword()" data-text="copy">Скопировать</button>
-
-  <div class="custom-input">
-    <p id="customPrompt">🔎 Проверьте свой пароль:</p>
-    <input type="text" id="customPassword" placeholder="Введите свой пароль">
-    <button onclick="onUserCheck()" id="userCheckBtn">Проверить пароль</button>
-    <div id="userStrength"></div>
-  </div>
-
   <script>
     // English word list for phrase passwords
     const words = [
@@ -136,14 +404,12 @@
       document.querySelector('[data-text="symbols"]').innerText = t.symbols;
       document.querySelector('[data-text="generate"]').innerText = t.generate;
       document.querySelector('[data-text="phrase"]').innerText = t.phrase;
-      document.querySelector('[data-text="copy"]').innerText = t.copy;
       document.getElementById("customPrompt").innerText = t.customPrompt;
       document.getElementById("userCheckBtn").innerText = t.userCheck;
       document.querySelector(".lang-toggle").innerText = currentLang === "ru" ? "🇷🇺" : "🇺🇸";
       checkStrength(document.getElementById("password").innerText);
     }
 
-    // Генерация максимально надёжного пароля с учётом выбранных типов символов
     function generatePassword() {
       const length = Math.max(4, parseInt(document.getElementById("length").value) || 12);
       const useLetters = document.getElementById("letters").checked;
@@ -172,7 +438,6 @@
 
       let password = "";
 
-      // Добавим по одному символу каждого выбранного типа (гарантия)
       let forced = "";
       if (useLetters) forced += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(Math.floor(Math.random() * 52));
       if (useNumbers) forced += "0123456789".charAt(Math.floor(Math.random() * 10));
@@ -183,14 +448,12 @@
       }
 
       password += forced;
-      // Перемешиваем символы
       password = password.split('').sort(() => Math.random() - 0.5).join('');
 
       document.getElementById("password").innerText = password;
       checkStrength(password);
     }
 
-    // Генерация фразы-пароля на английском языке
     function generatePhrase() {
       let phrase = "";
       for (let i = 0; i < 4; i++) {
@@ -223,31 +486,39 @@
       btn.innerText = body.classList.contains('dark') ? '🌞' : '🌙';
     }
 
-    // Проверка надёжности для сгенерированного пароля
     function checkStrength(password) {
       const strength = document.getElementById("strength");
+      const bar = document.getElementById("strengthBar");
       let score = 0;
 
       if (password.length >= 12) score++;
       if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
       if (/\d/.test(password)) score++;
       if (/[^A-Za-z0-9]/.test(password)) score++;
+
+      let percent = (score / 4) * 100;
+      bar.style.width = percent + "%";
+      bar.parentNode.className = "bar-bg";
+      bar.className = "bar-fill";
 
       if (score <= 1) {
         strength.innerText = translations[currentLang].strengthWeak;
         strength.className = "weak";
+        bar.classList.add("weak");
       } else if (score === 2 || score === 3) {
         strength.innerText = translations[currentLang].strengthMed;
         strength.className = "medium";
+        bar.classList.add("medium");
       } else {
         strength.innerText = translations[currentLang].strengthStrong;
         strength.className = "strong";
+        bar.classList.add("strong");
       }
     }
 
-    // Проверка надёжности пользовательского пароля после нажатия кнопки
     function checkStrengthUser(password) {
       const strength = document.getElementById("userStrength");
+      const bar = document.getElementById("userStrengthBar");
       let score = 0;
 
       if (password.length >= 12) score++;
@@ -255,8 +526,15 @@
       if (/\d/.test(password)) score++;
       if (/[^A-Za-z0-9]/.test(password)) score++;
 
+      let percent = (score / 4) * 100;
+      bar.style.width = percent + "%";
+      bar.parentNode.className = "bar-bg";
+      bar.className = "bar-fill";
+
       if (!password) {
         strength.innerText = "";
+        bar.style.width = "0%";
+        bar.classList.remove("weak", "medium", "strong");
         strength.className = "";
         return;
       }
@@ -264,12 +542,15 @@
       if (score <= 1) {
         strength.innerText = translations[currentLang].strengthWeak;
         strength.className = "weak";
+        bar.classList.add("weak");
       } else if (score === 2 || score === 3) {
         strength.innerText = translations[currentLang].strengthMed;
         strength.className = "medium";
+        bar.classList.add("medium");
       } else {
         strength.innerText = translations[currentLang].strengthStrong;
         strength.className = "strong";
+        bar.classList.add("strong");
       }
     }
 
