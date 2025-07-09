@@ -14,110 +14,30 @@
       margin: 0;
       transition: background 0.3s, color 0.3s;
     }
-
-    body.dark {
-      background: #1c1c1c;
-      color: #eee;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      font-size: 28px;
-    }
-
-    #password {
-      font-size: 22px;
-      font-weight: bold;
-      margin: 20px 0;
-      color: #0077cc;
-      word-wrap: break-word;
-    }
-
-    #strength {
-      font-size: 18px;
-      margin-bottom: 15px;
-      font-weight: bold;
-    }
-
+    body.dark { background: #1c1c1c; color: #eee; }
+    h1 { margin-bottom: 20px; font-size: 28px; }
+    #password { font-size: 22px; font-weight: bold; margin: 20px 0; color: #0077cc; word-wrap: break-word; }
+    #strength { font-size: 18px; margin-bottom: 15px; font-weight: bold; }
     .weak { color: red; }
     .medium { color: orange; }
     .strong { color: green; }
-
-    .controls {
-      margin-bottom: 20px;
-    }
-
-    label {
-      margin: 0 10px;
-      font-size: 16px;
-    }
-
-    input[type="number"],
-    input[type="text"] {
-      padding: 8px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    input[type="number"] {
-      width: 60px;
-    }
-
-    input[type="checkbox"] {
-      transform: scale(1.2);
-    }
-
-    button {
-      background-color: #0077cc;
-      color: white;
-      padding: 10px 16px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 5px;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background-color: #005fa3;
-    }
-
-    .theme-toggle, .lang-toggle {
-      position: absolute;
-      top: 10px;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
+    .controls { margin-bottom: 20px; }
+    label { margin: 0 10px; font-size: 16px; }
+    input[type="number"], input[type="text"] { padding: 8px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+    input[type="number"] { width: 60px; }
+    input[type="checkbox"] { transform: scale(1.2); }
+    button { background-color: #0077cc; color: white; padding: 10px 16px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; transition: background 0.2s; }
+    button:hover { background-color: #005fa3; }
+    .theme-toggle, .lang-toggle { position: absolute; top: 10px; background: none; border: none; font-size: 20px; cursor: pointer; }
     .theme-toggle { right: 20px; }
     .lang-toggle { left: 20px; }
-
-    .custom-input {
-      margin-top: 20px;
-    }
-
+    .custom-input { margin-top: 20px; }
+    #userStrength { margin-top: 8px; font-weight: bold; }
     @media (max-width: 600px) {
-      body {
-        padding: 20px;
-      }
-
-      h1 {
-        font-size: 22px;
-      }
-
-      button {
-        font-size: 15px;
-        padding: 10px;
-      }
-
-      label {
-        display: block;
-        margin: 10px 0;
-      }
+      body { padding: 20px; }
+      h1 { font-size: 22px; }
+      button { font-size: 15px; padding: 10px; }
+      label { display: block; margin: 10px 0; }
     }
   </style>
 </head>
@@ -154,11 +74,17 @@
 
   <div class="custom-input">
     <p id="customPrompt">🔎 Проверьте свой пароль:</p>
-    <input type="text" id="customPassword" placeholder="Введите свой пароль" oninput="checkStrength(this.value)">
+    <input type="text" id="customPassword" placeholder="Введите свой пароль">
+    <button onclick="onUserCheck()" id="userCheckBtn">Проверить пароль</button>
+    <div id="userStrength"></div>
   </div>
 
   <script>
-    const words = ["лес", "пёс", "дом", "река", "гора", "снег", "день", "кот", "луна", "мост", "брат", "мир", "жук", "дождь", "чай", "путь", "пруд", "тень", "стул", "глаз"];
+    // English word list for phrase passwords
+    const words = [
+      "forest", "dog", "house", "river", "mountain", "snow", "day", "cat", "moon", "bridge",
+      "brother", "world", "bug", "rain", "tea", "path", "pond", "shadow", "chair", "eye"
+    ];
 
     const translations = {
       ru: {
@@ -175,7 +101,8 @@
         strengthStrong: "Надёжность: СИЛЬНЫЙ",
         customPrompt: "🔎 Проверьте свой пароль:",
         copied: "Пароль скопирован!",
-        generateFirst: "Сначала сгенерируйте пароль!"
+        generateFirst: "Сначала сгенерируйте пароль!",
+        userCheck: "Проверить пароль"
       },
       en: {
         title: "🔐 Password Generator",
@@ -191,7 +118,8 @@
         strengthStrong: "Strength: STRONG",
         customPrompt: "🔎 Check your password:",
         copied: "Password copied!",
-        generateFirst: "Please generate a password first!"
+        generateFirst: "Please generate a password first!",
+        userCheck: "Check password"
       }
     };
 
@@ -210,20 +138,32 @@
       document.querySelector('[data-text="phrase"]').innerText = t.phrase;
       document.querySelector('[data-text="copy"]').innerText = t.copy;
       document.getElementById("customPrompt").innerText = t.customPrompt;
+      document.getElementById("userCheckBtn").innerText = t.userCheck;
       document.querySelector(".lang-toggle").innerText = currentLang === "ru" ? "🇷🇺" : "🇺🇸";
       checkStrength(document.getElementById("password").innerText);
     }
 
+    // Генерация максимально надёжного пароля с учётом выбранных типов символов
     function generatePassword() {
-      const length = parseInt(document.getElementById("length").value);
+      const length = Math.max(4, parseInt(document.getElementById("length").value) || 12);
       const useLetters = document.getElementById("letters").checked;
       const useNumbers = document.getElementById("numbers").checked;
       const useSymbols = document.getElementById("symbols").checked;
 
       let chars = "";
-      if (useLetters) chars += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      if (useNumbers) chars += "0123456789";
-      if (useSymbols) chars += "!@#$%^&*()_+-=[]{}|;:,.<>?";
+      let availableTypes = [];
+      if (useLetters) {
+        chars += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        availableTypes.push("letter");
+      }
+      if (useNumbers) {
+        chars += "0123456789";
+        availableTypes.push("number");
+      }
+      if (useSymbols) {
+        chars += "!@#$%^&*()_+-=[]{}|;:,.<>?";
+        availableTypes.push("symbol");
+      }
 
       if (chars === "") {
         alert("Выберите хотя бы один тип символов!");
@@ -231,14 +171,26 @@
       }
 
       let password = "";
-      for (let i = 0; i < length; i++) {
+
+      // Добавим по одному символу каждого выбранного типа (гарантия)
+      let forced = "";
+      if (useLetters) forced += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(Math.floor(Math.random() * 52));
+      if (useNumbers) forced += "0123456789".charAt(Math.floor(Math.random() * 10));
+      if (useSymbols) forced += "!@#$%^&*()_+-=[]{}|;:,.<>?".charAt(Math.floor(Math.random() * 24));
+
+      for (let i = 0; i < length - forced.length; i++) {
         password += chars.charAt(Math.floor(Math.random() * chars.length));
       }
+
+      password += forced;
+      // Перемешиваем символы
+      password = password.split('').sort(() => Math.random() - 0.5).join('');
 
       document.getElementById("password").innerText = password;
       checkStrength(password);
     }
 
+    // Генерация фразы-пароля на английском языке
     function generatePhrase() {
       let phrase = "";
       for (let i = 0; i < 4; i++) {
@@ -246,7 +198,6 @@
         phrase += word.charAt(0).toUpperCase() + word.slice(1);
         if (i < 3) phrase += "-";
       }
-
       const number = Math.floor(Math.random() * 100);
       const symbol = "!@#$%&*"[Math.floor(Math.random() * 8)];
       phrase += "-" + number + symbol;
@@ -272,6 +223,7 @@
       btn.innerText = body.classList.contains('dark') ? '🌞' : '🌙';
     }
 
+    // Проверка надёжности для сгенерированного пароля
     function checkStrength(password) {
       const strength = document.getElementById("strength");
       let score = 0;
@@ -292,7 +244,39 @@
         strength.className = "strong";
       }
     }
+
+    // Проверка надёжности пользовательского пароля после нажатия кнопки
+    function checkStrengthUser(password) {
+      const strength = document.getElementById("userStrength");
+      let score = 0;
+
+      if (password.length >= 12) score++;
+      if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+      if (/\d/.test(password)) score++;
+      if (/[^A-Za-z0-9]/.test(password)) score++;
+
+      if (!password) {
+        strength.innerText = "";
+        strength.className = "";
+        return;
+      }
+
+      if (score <= 1) {
+        strength.innerText = translations[currentLang].strengthWeak;
+        strength.className = "weak";
+      } else if (score === 2 || score === 3) {
+        strength.innerText = translations[currentLang].strengthMed;
+        strength.className = "medium";
+      } else {
+        strength.innerText = translations[currentLang].strengthStrong;
+        strength.className = "strong";
+      }
+    }
+
+    function onUserCheck() {
+      const password = document.getElementById("customPassword").value;
+      checkStrengthUser(password);
+    }
   </script>
 </body>
 </html>
-
